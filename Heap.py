@@ -1,6 +1,7 @@
 import heapq
 
 class Heap:
+    # Kth Largest Element in an Array
     def findKthLargest(self, nums: List[int], k: int) -> int:
         heap = nums[:k]
         heapq.heapify(heap)
@@ -12,6 +13,7 @@ class Heap:
         
         return heap[0]
     
+    # IPO
     def findMaximizedCapital(self, k: int, w: int, profits: List[int], capital: List[int]) -> int:
         n = len(profits)
         projects = [(capital[i], profits[i]) for i in range(n)]
@@ -28,6 +30,7 @@ class Heap:
 
         return w
     
+    # Find K Pairs with Smallest Sums
     def kSmallestPairs(self, nums1: List[int], nums2: List[int], k: int) -> List[List[int]]:
         if not nums1 or not nums2:
             return []
@@ -51,6 +54,7 @@ class Heap:
 
         return result
     
+# Find Median from Data Stream
 class MedianFinder:
     def __init__(self):
         self.lo = []  

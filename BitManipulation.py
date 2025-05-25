@@ -1,4 +1,5 @@
 class BitManipulation:
+    # Add Binary
     def addBinary(self, a: str, b: str) -> str:
         if int(b) > int(a):
             a, b = b, a
@@ -16,6 +17,7 @@ class BitManipulation:
         #print(output)
         return output
     
+    # Reverse Bits
     def reverseBits(self, n: int) -> int:
         output = 0
         for i in range(32):
@@ -23,6 +25,7 @@ class BitManipulation:
             n >>= 1 
         return output
     
+    # Number of 1 Bits
     def hammingWeight(self, n: int) -> int:
         #O(log n), O(1)
         count = 0
@@ -31,6 +34,7 @@ class BitManipulation:
             n >>= 1
         return count
     
+    # Single Number
     def singleNumber(self, nums: List[int]) -> int:
         #1 ^ 1 == 0, 0^single_number = single_number
         xor = 0
@@ -39,6 +43,7 @@ class BitManipulation:
         
         return xor
     
+    # Single Number II
     def singleNumber(self, nums: List[int]) -> int:
         '''
         count = defaultdict(int)
@@ -60,6 +65,7 @@ class BitManipulation:
 
         return ones  # The single number remains in "ones"
     
+    # Bitwise AND of Numbers Range
     def rangeBitwiseAnd(self, left: int, right: int) -> int:
         cnt = 0
         while left != right:

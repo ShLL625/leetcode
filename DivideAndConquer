@@ -1,0 +1,106 @@
+import Optional, List
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+class QuadTreeNode:
+    def __init__(self, val, isLeaf, topLeft, topRight, bottomLeft, bottomRight):
+        self.val = val
+        self.isLeaf = isLeaf
+        self.topLeft = topLeft
+        self.topRight = topRight
+        self.bottomLeft = bottomLeft
+        self.bottomRight = bottomRight
+
+class DivideAndConquer:
+    # Convert Sorted Array to Binary Search Tree
+    def sortedArrayToBST(self, nums: List[int]) -> Optional[TreeNode]:
+        if not nums:
+            return None
+        mid = len(nums)>>1
+        output = TreeNode(nums[mid], self.sortedArrayToBST(nums[:mid]), self.sortedArrayToBST(nums[mid+1:]))
+        return output 
+
+    # Sort List
+    def sortList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        if not head or not head.next:
+            return head
+        
+        # Find the middle of the linked list 
+        slow, fast = head, head.next
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+        
+        mid = slow.next
+        slow.next = None
+        
+        # Sort both halves
+        left = self.sortList(head)
+        right = self.sortList(mid)
+        
+        return self.mergeSortList(left, right)
+    
+    def mergeSortList(self, l1: ListNode, l2: ListNode) -> ListNode:
+        dummy = ListNode(0)
+        tail = dummy
+        
+        while l1 and l2:
+            if l1.val < l2.val:
+                tail.next = l1
+                l1 = l1.next
+            else:
+                tail.next = l2
+                l2 = l2.next
+            tail = tail.next
+        
+        tail.next = l1 if l1 else l2
+        return dummy.next
+
+    # Construct Quad Tree
+    def ConstructQuadTree(self, grid: List[List[int]]) -> 'QuadTreeNode':
+        return self.recursive(grid, 0, 0, len(grid))
+
+    def recursive(self, grid, x, y, l):
+        for i in range(x, x+l):
+            for j in range(y, y+l):
+                if grid[i][j] != grid[x][y]:
+                    node = QuadTreeNode(True, False)
+                    l = l >> 1 
+                    node.topLeft = self.recursive(grid, x, y, l)
+                    node.topRight = self.recursive(grid, x, y + l, l)
+                    node.bottomLeft = self.recursive(grid, x + l, y, l)
+                    node.bottomRight = self.recursive(grid, x + l, y + l, l)
+                    return node
+        return QuadTreeNode(grid[x][y] & 1, True)
+    
+    # Merge k Sorted Lists
+    def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+        l = len(lists)
+        while l > 1:
+            l = l >> 1
+            return self.merge(self.mergeKLists(lists[:l]), self.mergeKLists(lists[l:]))
+        if lists:
+            return lists[0]
+        else:
+            return None
+        
+    def merge(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
+        if not l1:
+            return l2
+        if not l2:
+            return l1
+        if l1.val < l2.val:
+            l1.next = self.merge(l1.next, l2)
+            return l1
+        else:
+            l2.next = self.merge(l1, l2.next)
+            return l2

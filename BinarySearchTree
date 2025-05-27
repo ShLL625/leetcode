@@ -1,0 +1,72 @@
+
+import Optional
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class BinarySearchTree:
+    # Minimum Absolute Difference in BST
+    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
+        min_dif = float("inf")
+        prev = float("inf")
+
+        def traverse(node): 
+            nonlocal min_dif, prev
+            if not node: 
+                return 
+            traverse(node.left)
+            min_dif = min(min_dif, abs(prev - node.val))
+            prev = node.val
+            traverse(node.right)
+
+        traverse(root)
+        return min_dif
+    
+    # Kth Smallest Element in a BST
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        path = []
+        def inorder(node):
+            if not node:
+                return None
+            # left traverse
+            left_result = inorder(node.left)
+            if left_result is not None:
+                return left_result 
+            # visit node
+            path.append(node.val)
+            if len(path) ==k:
+                return path[-1]
+            # right traverse
+            right_result = inorder(node.right)
+            if right_result is not None:
+                return right_result
+            return None
+        
+        return inorder(root)
+    
+    # Validate Binary Search Tree
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        last = None
+        def inorder(node):
+            nonlocal last
+            if not node:
+                return True
+            # left traverse
+            left_result = inorder(node.left)
+            if not left_result:
+                return left_result 
+            # visit node
+            if last != None:
+                if last >= node.val:
+                    return False
+            last = node.val
+            # right traverse
+            right_result = inorder(node.right)
+            if not right_result:
+                return right_result
+            return True
+        
+        return inorder(root)

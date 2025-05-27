@@ -1,0 +1,289 @@
+import Optional, List
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class Node:
+    def __init__(self, val: int = 0, left: 'Node' = None, right: 'Node' = None, next: 'Node' = None):
+        self.val = val
+        self.left = left
+        self.right = right
+        self.next = next
+
+class BinaryTree:
+    # Maximum Depth of Binary Tree
+    def maxDepth(self, root: Optional[TreeNode]) -> int:
+        if not root:
+            return 0
+        return max(self.backtrack_maxDepth(root.left, 1), self.backtrack_maxDepth(root.right, 1))
+        
+    def backtrack_maxDepth(self, root, d):
+        if root:
+            return max(self.backtrack_maxDepth(root.left, d+1), self.backtrack_maxDepth(root.right, d+1))
+        else:
+            return d
+        
+    # Same Tree
+    def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
+        if not p and not q:
+            return True
+        if p and q and p.val == q.val:
+            return (self.isSameTree(p.left, q.left) and self.isSameTree(p.right, q.right))
+        return False
+    
+    # Invert Binary Tree
+    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        if not root:
+            return None
+        root.left, root.right = self.invertTree(root.right), self.invertTree(root.left)
+        return root
+    
+    # Symmetric Tree    
+    def isSymmetric(self, root: Optional[TreeNode]) -> bool:
+        if not root:
+            return True
+        return self.isSymmetricSub(root.left, root.right)
+    
+    def isSymmetricSub(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
+        if not p and not q:
+            return True
+        if p and q and p.val == q.val:
+            q.left, q.right = q.right, q.left
+            return (self.isSymmetricSub(p.left, q.left) and self.isSymmetricSub(p.right, q.right))
+        return False
+    
+    # Construct Binary Tree from Preorder and Inorder Traversal
+    def buildTreefromPreorder(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+        inorder_map={val:idx for idx, val in enumerate(inorder)}
+        preorder_idx=0
+
+        def treeHelper_fromPre(left, right):
+            nonlocal preorder_idx
+            if left>right:
+                return None
+
+            node_val = preorder[preorder_idx]
+            root=TreeNode(node_val)
+            preorder_idx+=1
+
+            inorder_index=inorder_map[node_val]
+
+            root.left = treeHelper_fromPre(left, inorder_index-1 )
+            root.right = treeHelper_fromPre(inorder_index+1, right)
+
+            return root
+
+        return treeHelper_fromPre(0, len(inorder)-1)
+
+    # Construct Binary Tree from Postorder and Inorder Traversal
+    def buildTreefromPostorder(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+        inorder_map={val:idx for idx, val in enumerate(inorder)}
+        postorder_idx=len(postorder)-1
+
+        def treeHelper_fromPost(left, right):
+            nonlocal postorder_idx
+            if left>right:
+                return None
+            
+            node_val = postorder[postorder_idx]
+            root=TreeNode(node_val)
+            postorder_idx-=1
+
+            inorder_index=inorder_map[node_val]
+
+            root.right = treeHelper_fromPost(inorder_index+1, right)
+            root.left = treeHelper_fromPost(left, inorder_index-1 )
+            
+            return root
+
+        return treeHelper_fromPost(0, len(inorder)-1)
+    
+    # Populating Next Right Pointers in Each Node II
+    def connect(self, root: 'Node') -> 'Node':      
+        table = {}
+        if not root:
+            return
+        self.recursive_connect(root.left, 1, table)
+        self.recursive_connect(root.right, 1, table)
+        return root
+
+    def recursive_connect(self, root, depth, table):
+        if not root:
+            return
+        if not depth in table:
+            table[depth] = root
+        else:
+            table[depth].next = root
+            table[depth] = root
+        self.recursive_connect(root.left, depth+1, table)
+        self.recursive_connect(root.right, depth+1, table)
+
+    #Flatten Binary Tree to Linked List
+    def flatten(self, root: Optional[TreeNode]) -> None:
+        """
+        Do not return anything, modify root in-place instead.
+        """
+        if not root:
+            return
+        root, _ = self.recursive_flatten(root) 
+        return root
+    
+    def recursive_flatten(self, root):
+        if not root.left and not root.right:
+            return root, root
+        elif not root.left:
+            root.right, leaf = self.recursive_flatten(root.right)
+            return root, leaf
+        elif not root.right:
+            root.right, leaf = self.recursive_flatten(root.left)
+            root.left = None
+            return root, leaf
+        else:        
+            temp = root.right
+            root.right, left_leaf = self.recursive_flatten(root.left)
+            left_leaf.right, leaf = self.recursive_flatten(temp)
+            root.left = None
+            return root, leaf
+        
+    # Path Sum
+    def hasPathSum(self, root: Optional[TreeNode], targetSum: int) -> bool:
+        if root:
+            if root.val == targetSum and not root.left and not root.right:
+                return True
+            return self.hasPathSum(root.left, targetSum-root.val) or self.hasPathSum(root.right, targetSum-root.val)
+        return False
+    
+    # Sum Root to Leaf Numbers
+    def sumNumbers(self, root: Optional[TreeNode]) -> int:
+        return self.recursive_sumNumbers(root, 0)
+    def recursive_sumNumbers(self, root: Optional[TreeNode], val) -> int:
+        if root:
+            if not root.left and not root.right:
+                return val *10 + root.val
+            if not root.left:
+                return self.recursive_sumNumbers(root.right, val*10+root.val)
+            if not root.right:
+                return self.recursive_sumNumbers(root.left, val*10+root.val)
+            else:
+                return self.recursive_sumNumbers(root.left, val*10+root.val) + self.recursive_sumNumbers(root.right, val*10+root.val)
+            
+    # Binary Tree Maximum Path Sum
+    def maxPathSum(self, root: Optional[TreeNode]) -> int:
+        MINUS_INFS = (-float('inf'), -float('inf'))
+        def get_best_path_sum(root: TreeNode) -> Tuple[int, int]:
+            '''
+            Returns a tuple of (
+                the best path sum I've seen of any path in my subtree, 
+                the best path sum of a path where I'm an endpoint
+            )
+            '''
+            # Base case: we're a leaf.
+            if root.left is None and root.right is None:
+                return root.val, root.val
+            
+            best_in_left, best_ending_at_left   = get_best_path_sum(root.left) if root.left else MINUS_INFS
+            best_in_right, best_ending_at_right = get_best_path_sum(root.right) if root.right else MINUS_INFS
+
+            best_ending_at_cur = max(root.val, root.val + best_ending_at_left, root.val + best_ending_at_right)
+
+            best_in_cur = max(
+                best_ending_at_cur, # Best path ends at me
+                best_in_left,       # Best path is somewhere in the left subtree
+                best_in_right,      # Best path is somewhere in the right subtree
+                root.val + best_ending_at_left + best_ending_at_right,
+                # Best path goes up from the left subtree, through me, and into the right subtree.
+            )
+            return best_in_cur, best_ending_at_cur
+
+        best_in_tree, best_ending_at_root = get_best_path_sum(root)
+        return best_in_tree
+    
+    # Count Complete Tree Nodes
+    def countNodes(self, root: Optional[TreeNode]) -> int:
+        if root==None:
+            return 0
+        def checkl(root):
+            if root is None:
+                return 0
+            left=1+checkl(root.left)
+            return left
+        def checkr(root):
+            if root is None:
+                return 0
+            right=1+checkr(root.right)
+            return right
+        def fun(root):
+            if root is None:
+                return 0
+            left=checkl(root)
+            right=checkr(root)
+            if left==right:
+                return (2**left)-1
+            le=fun(root.left)
+            ri=fun(root.right)
+            return 1+le+ri
+            
+        return fun(root) 
+    
+    # Lowest Common Ancestor of a Binary Tree
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        check=[0]
+        res=[None]
+        def fun(root):
+            nonlocal p,q
+            if res[0]!=None:
+                return False
+            if root==None:
+                return False 
+            if (root==p or root==q) and check[0]==0 :
+                check[0]=root
+                left=fun(root.left)
+                right=fun(root.right)
+                if left or right:
+                    res[0]=check[0]
+                return True
+            elif (root==p or root==q):
+                return True
+            else:
+                left=fun(root.left)
+                right=fun(root.right)
+                if left and right:
+                    res[0]=root
+                    return True
+                if left or right:
+                    return True
+                else:
+                    return False
+        fun(root)
+        return res[0]
+    
+# Binary Search Tree Iterator
+class BSTIterator:
+    def __init__(self, root: Optional[TreeNode]):
+        self.curr = root
+
+    def next(self) -> int:
+        while self.curr:
+            if not self.curr.left:
+                val = self.curr.val
+                self.curr = self.curr.right
+                return val
+            else:
+                pred = self.curr.left
+                while pred.right and pred.right!=self.curr:
+                    pred = pred.right
+                if pred.right==self.curr:
+                    pred.right=None
+                    val = self.curr.val
+                    self.curr= self.curr.right
+                    return val
+                else:
+                    pred.right = self.curr
+                    self.curr = self.curr.left
+
+    def hasNext(self) -> bool:
+        return self.curr is not None
+    

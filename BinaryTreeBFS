@@ -1,0 +1,81 @@
+import Optional, List, deque
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class BinaryTreeBFS:
+    # Binary Tree Right Side View
+    def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
+        output = []
+        return self.recursive_rightSideView(root, 0, output)
+
+    def recursive_rightSideView(self, root, height, output):
+        if not root:
+            return output
+        else:
+            if len(output) <= height:
+                output.append(root.val)
+            else:
+                output[height] = root.val
+            output = self.recursive_rightSideView(root.left, height+1, output)
+            output = self.recursive_rightSideView(root.right, height+1, output)
+            return output
+
+    # Average of Levels in Binary Tree
+    def averageOfLevels(self, root: Optional[TreeNode]) -> List[float]:
+        q = deque([root])
+        res = []
+
+        while q:
+            level_length = len(q)
+            level_sum = 0
+
+            for _ in range(level_length):
+                node = q.popleft()
+                level_sum += node.val
+                if node.left:
+                    q.append(node.left)
+                if node.right:
+                    q.append(node.right)
+            res.append(level_sum / level_length)
+        return res
+    
+    # Binary Tree Level Order Traversal
+    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        output = []
+        return self.recursive_levelOrder(root, 0, output)
+
+    def recursive_levelOrder(self, root, height, output):
+        if not root:
+            return output
+        else:
+            if len(output) <= height:
+                output.append([root.val])
+            else:
+                output[height].append(root.val)
+            output = self.recursive_levelOrder(root.left, height+1, output)
+            output = self.recursive_levelOrder(root.right, height+1, output)
+            return output
+        
+    # Binary Tree Zigzag Level Order Traversal
+    def zigzagLevelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        output = []
+        return self.recursive_zigzag(root, 0, output)
+
+    def recursive_zigzag(self, root, height, output):
+        if not root:
+            return output
+        else:
+            if len(output) <= height:
+                output.append([root.val])
+            else:
+                if height%2:
+                    output[height].insert(0, root.val)
+                else:
+                    output[height].append(root.val)
+            output = self.recursive_zigzag(root.left, height+1, output)
+            output = self.recursive_zigzag(root.right, height+1, output)
+            return output

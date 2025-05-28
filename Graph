@@ -1,0 +1,202 @@
+from typing import Optional
+import List, deque, defaultdict
+
+class Node:
+    def __init__(self, val = 0, neighbors = None):
+        self.val = val
+        self.neighbors = neighbors if neighbors is not None else []
+
+class GraphGeneral:
+    # Number of Islands
+    def numIslands(self, grid: List[List[str]]) -> int:
+        count = 0
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == '1':
+                    print(i,j)
+                    self.dfs_numIslands(grid,i,j)
+                    count  += 1
+        #print(grid)
+        return count
+    # use a helper function to flip connected '1's to 0
+    def dfs_numIslands(self,grid,i,j):
+        grid[i][j] = 0
+        for dr,dc in (1,0), (-1,0), (0,-1), (0,1):
+            r = i + dr
+            c = j + dc
+            if 0 <= r < len(grid) and 0 <= c < len(grid[0]) and grid[r][c]=='1':
+                self.dfs_numIslands(grid,r,c)
+
+    # Surrounded Regions
+    def solve(self, board: List[List[str]]) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        n = len(board)
+        m = len(board[0])
+        vis = [[0] * m for _ in range(n)]
+
+        def dfs(x, y):
+            vis[x][y] = 1
+            for dx, dy in [(-1,0), (0,1), (1,0), (0,-1)]:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < n and 0 <= ny < m and not vis[nx][ny] and board[nx][ny] == 'O':
+                    dfs(nx, ny)
+
+        for i in range(n):
+            if board[i][0] == 'O':
+                dfs(i, 0)
+            if board[i][m-1] == 'O':
+                dfs(i, m-1)
+
+        for j in range(m):
+            if board[0][j] == 'O':
+                dfs(0, j)
+            if board[n-1][j] == 'O':
+                dfs(n-1, j)
+
+        for i in range(n):
+            for j in range(m):
+                if board[i][j] == 'O' and vis[i][j] == 0:
+                    board[i][j] = 'X'
+
+    # Clone Graph
+    def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:
+        if not node:
+          return None
+
+        visited = {}
+        queue = deque([node])
+
+        # Create a copy of the starting node and add it to visited
+        visited[node] = Node(node.val)
+
+        while queue:
+            # Get the next node from the queue
+            curr_node = queue.popleft()
+
+            # Loop through the current node's neighbors
+            for neighbor in curr_node.neighbors:
+                if neighbor not in visited:
+                    # Create a copy of the neighbor and add it to visited
+                    visited[neighbor] = Node(neighbor.val)
+                    queue.append(neighbor)
+
+                # Add the copy of the neighbor to the copy of the current node's neighbors
+                visited[curr_node].neighbors.append(visited[neighbor])
+
+        return visited[node]
+    
+    # Evaluate Division
+    def calcEquation(self, equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
+        graph = defaultdict(dict)
+        self.visited = set()
+        for i in range(len(equations)):
+            graph[equations[i][0]][equations[i][1]] = float(values[i])
+            graph[equations[i][1]][equations[i][0]] = float(1/values[i])
+
+        self.answer = -1
+        
+
+        def dfs(current: str, destination: str, currentValue: float) -> None:
+            if current in self.visited:
+                return
+            self.visited.add(current)
+            if current == destination:
+                self.answer = currentValue
+                return 
+            for neighbor in graph[current]:
+                dfs(neighbor, destination, currentValue * graph[current][neighbor])
+        
+        
+        finalAns = []
+
+        for query in queries:
+            dividend, divisor = query
+
+            if dividend not in graph or divisor not in graph:
+                finalAns.append(-1.0)
+            else:
+                self.visited = set()
+                self.answer = -1
+                temp = 1.0
+                dfs(dividend, divisor, 1.0)
+                finalAns.append(self.answer)
+
+        return finalAns
+    
+    # Course Schedule
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        courses = {}
+        for i in prerequisites:
+            if i[0] == i[1]:
+                return False
+            if i[0] in courses:
+                courses[i[0]].append(i[1])
+            else:
+                courses[i[0]] = [i[1]]
+        #print(courses)
+        passed = set()
+        for i in range(numCourses):
+            if i in passed:
+                continue
+            flag, passed = self.dfs_canFinish(i, courses, set(), passed, True)
+            if not flag:
+                return False
+        return True
+      
+    def dfs_canFinish(self, course, courses, visited, passed, flag) -> None:
+        visited.add(course)
+        if course in courses:
+            for i in courses[course]:
+                if i in passed:
+                    continue
+                if i in visited:
+                    return False, passed
+                flag, passed = self.dfs_canFinish(i, courses, visited, passed, flag)
+                if not flag:
+                    return False, passed
+                #passed.add(i)
+                visited.remove(i)
+                #print(passed)
+        passed.add(course)
+        return flag, passed
+    
+    # Course Schedule II
+    def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:
+        courses = {}
+        for i in prerequisites:
+            if i[0] == i[1]:
+                return False
+            if i[0] in courses:
+                courses[i[0]].append(i[1])
+            else:
+                courses[i[0]] = [i[1]]
+        #print(courses)
+        passed = set()
+        order = []
+        for i in range(numCourses):
+            if i in passed:
+                continue
+            flag, passed, order = self.dfs_findOrder(i, courses, set(), passed, order, True)
+            if not flag:
+                return []
+        return order
+
+            
+    def dfs_findOrder(self, course, courses, visited, passed, order, flag) -> None:
+        visited.add(course)
+        if course in courses:
+            for i in courses[course]:
+                if i in passed:
+                    continue
+                if i in visited:
+                    return False, passed, order
+                flag, passed, order = self.dfs_findOrder(i, courses, visited, passed, order, flag)
+                if not flag:
+                    return False, passed, order
+                visited.remove(i)
+        passed.add(course)
+        order.append(course)
+        #print(course, passed, visited)
+        return flag, passed, order

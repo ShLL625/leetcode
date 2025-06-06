@@ -1,0 +1,153 @@
+import List
+
+class Backtracking:
+    # Letter Combinations of a Phone Number
+    def letterCombinations(self, digits: str) -> List[str]:
+        dicts = {}
+        dicts["2"] = {"a", "b", "c"}
+        dicts["3"] = {"d", "e", "f"}
+        dicts["4"] = {"g", "h", "i"}
+        dicts["5"] = {"j", "k", "l"}
+        dicts["6"] = {"m", "n", "o"}
+        dicts["7"] = {"p", "q", "r", "s"}
+        dicts["8"] = {"t", "u", "v"}
+        dicts["9"] = {"w", "x", "y", "z"}
+        
+        if digits == "":
+            return []
+        else:
+            output = [i for i in dicts[digits[0]]]
+        
+        for i in digits[1:]:
+            temp = output
+            output = []
+            for j in dicts[i]:
+                output += [k + j for k in temp]
+        
+        return output
+    
+    # Combinations
+    def combine(self, n: int, k: int) -> List[List[int]]:
+        result = []
+        self.backtrack_combine(1, n, k, [], result)
+        return result
+    
+    def backtrack_combine(self, start, n, k, combination, result):
+        if len(combination) == k:
+            result.append(combination[:])
+            return
+        
+        for i in range(start, n + 1):
+            combination.append(i)
+            self.backtrack_combine(i + 1, n, k, combination, result)
+            combination.pop()
+
+    # Permutations
+    def permute(self, nums: List[int]) -> List[List[int]]:
+        def backtrack(start):
+            if start == len(nums):
+                result.append(nums[:])
+                return
+            for i in range(start, len(nums)):
+                nums[start], nums[i] = nums[i], nums[start]  # Swap
+                backtrack(start + 1)
+                nums[start], nums[i] = nums[i], nums[start]  # Backtrack
+
+        result = []
+        backtrack(0)
+        return result
+    
+    # Combination Sum
+    def findCombinations(self, index: int, target: int, candidates: List[int], current: List[int], result: List[List[int]]) -> None:
+        # Base case: if target becomes 0, we found a valid combination
+        if target == 0:
+            result.append(current[:])  # Add a copy of current combination to result
+            return
+        
+        # Try all possible numbers from current index
+        for i in range(index, len(candidates)):
+            # Only proceed if current number doesn't exceed target
+            if candidates[i] <= target:
+                # Include current number in combination
+                current.append(candidates[i])
+                
+                # Recursive call with:
+                # - same index i (allowing reuse of same number)
+                # - reduced target by current number
+                self.findCombinations(i, target - candidates[i], candidates, current, result)
+                
+                # Backtrack: remove the last added number to try other combinations
+                current.pop()
+    
+    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+        result = []        # Stores all valid combinations
+        current = []       # Temporary list to build combinations
+        self.findCombinations(0, target, candidates, current, result)
+        return result
+    
+    # N-Queens II
+    def totalNQueens(self, n: int) -> int:
+        visited_cols=set()
+        visited_diagonals=set()
+        visited_antidiagonals=set()
+        
+        res=set()
+        def backtrack(r):
+            if r==n:  # valid solution state   
+                return 1
+                        
+            cnt=0
+            for c in range(n):
+                if not(c in visited_cols or (r-c) in visited_diagonals or (r+c) in visited_antidiagonals):
+                    visited_cols.add(c)
+                    visited_diagonals.add(r-c)
+                    visited_antidiagonals.add(r+c)                    
+                    cnt+=backtrack(r+1) # count the overall tally from this current state
+                    
+                    visited_cols.remove(c)
+                    visited_diagonals.remove(r-c)
+                    visited_antidiagonals.remove(r+c)                    
+            
+            return cnt
+        
+        return backtrack(0)
+    
+    # Generate Parentheses
+    def generateParenthesis(self, n: int) -> List[str]:
+        result = []
+        
+        def backtrack(current, open_count, close_count):
+            if open_count == n and close_count == n:
+                result.append(current)
+                return
+            
+            if open_count < n:
+                backtrack(current + '(', open_count + 1, close_count)
+            if close_count < open_count:
+                backtrack(current + ')', open_count, close_count + 1)
+        
+        backtrack("", 0, 0)
+        return result  
+    
+    # Word Search
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        def backtrack(i, j, k):
+            if k == len(word):
+                return True
+            if i < 0 or i >= len(board) or j < 0 or j >= len(board[0]) or board[i][j] != word[k]:
+                return False
+            
+            temp = board[i][j]
+            board[i][j] = ''
+            
+            if backtrack(i+1, j, k+1) or backtrack(i-1, j, k+1) or backtrack(i, j+1, k+1) or backtrack(i, j-1, k+1):
+                return True
+            
+            board[i][j] = temp
+            return False
+        
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                if backtrack(i, j, 0):
+                    return True
+        return False    

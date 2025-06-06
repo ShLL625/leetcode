@@ -207,6 +207,125 @@ class ArrayString:
             else:
                 number+=roman[s[i]]
         return number+roman[s[-1]]
+    
+    # Integer to Roman
+    def intToRoman(self, num: int) -> str:
+        roman = {
+        1000: 'M',
+        900: 'CM',
+        500: 'D',
+        400: 'CD',
+        100: 'C',
+        90: 'XC',
+        50: 'L',
+        40: 'XL',
+        10: 'X',
+        9: 'IX',
+        5: 'V',
+        4: 'IV',
+        1: 'I'
+        }
+        romanized = ''
+
+        for base, symb in roman.items():
+            romanized += symb * (num // base)
+            num %= base
+        else:
+            return romanized
+        
+    # Length of Last Word
+    def lengthOfLastWord(self, s: str) -> int:
+        flag = 0
+        count = 0
+        for i in range(len(s)-1, -1, -1):
+            if s[i] != ' ':
+                flag = 1
+                count += 1
+            if flag and s[i] == ' ':
+                break
+        return count
+    
+    # Longest Common Prefix
+    def longestCommonPrefix(self, strs: List[str]) -> str:
+        pref = strs[0]
+        pref_len = len(pref)
+        for s in strs[1:]:
+            while pref != s[0:pref_len]:
+                pref_len -= 1
+                if pref_len == 0:
+                    return ""               
+                pref = pref[0:pref_len]       
+        return pref
+
+    # Reverse Words in a String
+    def reverseWords(self, s: str) -> str:
+        res = []
+        temp = ""
+        for c in s:
+            if c != " ":
+                temp += c 
+            elif temp != "":
+                res.append(temp)
+                temp = ""
+        if temp != "":
+            res.append(temp)
+        return " ".join(res[::-1])
+    
+    # Zigzag Conversion
+    def convert(self, s: str, numRows: int) -> str:
+        if numRows == 1: return s
+        a=""
+        for i in range(numRows):
+            for j in range(i,len(s),2*(numRows-1)):
+                a+=s[j]
+                if(i>0 and i<numRows-1 and j+2*(numRows-1)-2*i < len(s)):
+                    a+=s[j+2*(numRows-1)-2*i]
+        return a
+
+    # Find the Index of the First Occurrence in a String
+    def strStr(self, haystack: str, needle: str) -> int:
+        # makes sure we don't iterate through a substring that is shorter than needle
+        for i in range(len(haystack) - len(needle) + 1):
+            # check if any substring of haystack with the same length as needle is equal to needle
+            if haystack[i : i+len(needle)] == needle:
+                # if yes, we return the first index of that substring
+                return i
+        # if we exit the loop, return -1        
+        return -1
+    
+    #Text Justification
+    def fullJustify(self, words: List[str], maxWidth: int) -> List[str]:
+        output = []; ptr = 0
+        while ptr<len(words):
+            curr = 0; count = 0
+            while curr<maxWidth and ptr<len(words):
+                if curr+len(words[ptr])+count<=maxWidth:
+                    curr+=len(words[ptr]); count+=1
+                    ptr+=1
+                else:
+                    break
+            spaces = maxWidth-curr
+            if count==1:
+                output.append(words[ptr-1]+(" ")*spaces)
+            elif ptr==len(words):
+                out = ""
+                for i in range(ptr-count,ptr-1):
+                    out+=words[i]+" "
+                    spaces-=1
+                out+=words[ptr-1]
+                out+=(" ")*spaces
+                output.append(out)
+            else:
+                out = ""
+                specs = count-1
+                for i in range(ptr-count,ptr-1):
+                    out+=words[i]
+                    out+=(" ")*math.ceil(spaces/specs)
+                    spaces-=math.ceil(spaces/specs)
+                    specs-=1
+                out+=words[ptr-1]
+                output.append(out)
+        return output
 
 # Insert Delete GetRandom O(1)    
 class RandomizedSet:

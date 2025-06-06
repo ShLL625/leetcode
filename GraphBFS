@@ -1,0 +1,95 @@
+import List, deque, chain, defaultdict
+
+class GraphBFS:
+    def snakesAndLadders(self, board: List[List[int]]) -> int:
+        board.reverse()                                     #  <–– convert the board to 1D list
+        for i in range(1,len(board),2): 
+            board[i].reverse()
+        arr = [None]+list(chain(*board))                    #  <–– add an initial element (None) to make indexing simpler           
+        n, queue, seen, ct = len(arr)-1, deque([1]), {1}, 0               
+        while queue:                                        #  <–– BFS search for arr[n]
+            lenQ = len(queue)
+            for _ in range(lenQ):                           #  <–– one level of BFS
+                cur = queue.popleft()
+                if cur == n: 
+                    return ct
+                for i in range(cur+1, min(cur+7,n+1)):      #  <–– oiterate through the possible next moves
+                    nxt = arr[i] if arr[i]+1 else i         #  <–– determine whether snake or ladder
+                    if nxt in seen: continue                #  <–– avoid revisiting positions        
+                    seen.add(nxt)
+                    queue.append(nxt)                       #  <–– build queue for next level                   
+            ct += 1                           
+        return -1
+    
+    # Minimum Genetic Mutation
+    def minMutation(self, startGene: str, endGene: str, bank: List[str]) -> int:
+        # CONVERT IT TO A SET FOR EASY CHECKS
+        # TO SEE IF THE GENE IS PRESENT IN THE BANK OR NOT
+        bank = set(bank)
+        allowedChars = ["A", "C", "G", "T"]
+        
+        def getAdjacent(s: str):
+            # ASSUME THIS IS A GRAPH AND FIND ALL THE NODE ADJACENT
+            # TO THIS GRPAH
+            adj = []
+            for i in range(len(s)):
+                # REPLACE ONE CHAR FROM THE CURRENT GENE
+                # IT DOESNT MATTER IF YOU PUT IN THE SAME CHAR AGAIN
+                # AS WE HAVE MAINTAINED A VISITED SET.
+                adj.extend([s[:i] + ch + s[i+1:] for ch in allowedChars])
+            return adj
+        
+        q, level = [startGene], 0
+        visit = set()
+        while q:
+            # LOOP FOR EACH LEVEL AND COUNT THE TOTAL LEVELS
+            for _ in range(len(q)):
+                node = q.pop(0)
+                # IF WE FOUND THE END GENE RETURN THE LEVEL NUMBER.
+                if node == endGene:
+                    return level
+                # INCLUDE THE NODE IN THE VISITED SET.
+                visit.add(node)
+                for adj in getAdjacent(node):
+                    # ADD ALL THE ADJACENT NODES.
+                    # ONLY IF IT ISN'T PRESENT IN VISITED SET
+                    # AND IT IS INDEED PRESENT IN THE BANK
+                    if adj not in visit and adj in bank:
+                        q.append(adj)
+            level += 1
+        return -1
+    
+    def ladderLength(self, begin_word: str, end_word: str, word_list: List[str]) -> int:
+        if begin_word not in word_list:
+            word_list.append(begin_word)
+        patterns = defaultdict(set)
+        for word in word_list:
+            for i in range(len(word)):
+                form = word[:i] + "*" + word[i+1:]
+                patterns[form].add(word)
+    
+        # Create a graph between words
+        graph = defaultdict(list)
+        for word in word_list:
+            local_set = set()
+            for i in range(len(word)):
+                form = word[:i] + "*" + word[i+1:]
+                local_set |= patterns[form]
+            graph[word] = list(local_set)
+        # find the shortest way between begin_word and end_word
+        # -> BFS
+        queue = deque([begin_word])
+        step = 0
+        visit = set([begin_word])
+        while queue:
+            step += 1
+            for _ in range(len(queue)):
+                choosen_word = queue.popleft()
+                if choosen_word == end_word:
+                    return step
+                for next_word in graph[choosen_word]:
+                    if next_word in visit:
+                        continue
+                    visit.add(next_word)
+                    queue.append(next_word)
+        return 0

@@ -1,0 +1,133 @@
+import List
+
+class Hashmap:
+    # Ransom Note
+    def canConstruct(self, ransomNote: str, magazine: str) -> bool:
+        buffer = {}
+        for i in magazine:
+            if not i in buffer:
+                buffer[i] = 1
+            else:
+                buffer[i] += 1
+        for i in ransomNote:
+            if i in buffer and buffer[i] > 0:
+                buffer[i] -= 1
+            else:
+                return False
+        return True
+    
+    # Isomorphic Strings
+    def isIsomorphic(self, s: str, t: str) -> bool:
+        s2t= {}
+        t2s= {}
+        for i, v in enumerate(s):
+            if not v in s2t:
+                s2t[v] = t[i]
+            elif v in s2t and s2t[v] != t[i]:
+                return False
+            if not t[i] in t2s:
+                t2s[t[i]] = v
+            elif t[i] in t2s and t2s[t[i]] != v:
+                return False
+        return True
+    
+    # Word Pattern
+    def wordPattern(self, pattern: str, s: str) -> bool:
+        s = s.split(" ")
+        t = pattern
+        if len(s) != len(t):
+            return False
+        s2t= {}
+        t2s= {}
+        for i, v in enumerate(s):
+            if not v in s2t:
+                s2t[v] = t[i]
+            elif v in s2t and s2t[v] != t[i]:
+                return False
+            if not t[i] in t2s:
+                t2s[t[i]] = v
+            elif t[i] in t2s and t2s[t[i]] != v:
+                return False
+        return True
+    
+    # Valid Anagram
+    def isAnagram(self, s: str, t: str) -> bool:
+        buffer = {}
+        if len(s) != len(t):
+            return False
+        for i in s:
+            if i not in buffer:
+                buffer[i] = 1
+            else:
+                buffer[i] += 1
+        for i in t:
+            if i not in buffer or buffer[i] < 1:
+                return False
+            else:
+                buffer[i] -= 1
+        return True
+    
+    # Group Anagrams
+    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+        n = 0
+        buffer = {}
+        answer = []
+        for i in strs:
+            sorted_i =  "".join(sorted(i))
+            if sorted_i not in buffer:
+                buffer[sorted_i] = n
+                answer.append([i])
+                n += 1
+            else:
+                answer[buffer[sorted_i]].append(i)
+        return answer
+    
+    # Two Sum
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        buffer = {}
+        for i, v in enumerate(nums):
+            if v not in buffer:
+                buffer[v] = i
+        for i, v in enumerate(nums):
+            if target - v in buffer and i != buffer[target - v]:
+                return [i, buffer[target - v]]
+            
+    # Happy Number
+    def isHappy(self, n: int) -> bool:
+        buffer = set()
+        while n != 1:
+            sum = 0
+            for i in list(str(n)):
+                sum += int(i) ** 2
+            if not sum in buffer:
+                buffer.add(sum)
+                n = sum
+            else:
+                return False
+        return True
+    
+    # Contains Duplicate II
+    def containsNearbyDuplicate(self, nums: List[int], k: int) -> bool:
+        buffer = {}
+        for i, v in enumerate(nums):
+            if v not in buffer:
+                buffer[v] = i
+            elif i - buffer[v] <= k:
+                return True
+            else:
+                buffer[v] = i
+        return False
+    
+    # Longest Consecutive Sequence
+    def longestConsecutive(self, nums: List[int]) -> int:
+        nums = set(nums)
+        table = {}
+        maxval = 0
+        for num in nums:
+            x = table.get(num - 1, 0)
+            y = table.get(num + 1, 0)
+            val = x + y + 1
+            table[num - x] = val
+            table[num + y] = val
+            maxval = max(maxval, val)
+        return maxval

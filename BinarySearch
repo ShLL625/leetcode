@@ -28,18 +28,18 @@ class BinarySearch:
     
     # Find Peak Element
     def findPeakElement(self, nums: List[int]) -> int:
-        start = 1
-        end = len(nums) - 2
-        
-        while start <= end:
-            i = (start + end) >> 1
-            if nums[i] == target:
-                return i 
-            if nums[i] < target:
-                start = i + 1
-            else:
-                end = i - 1
-        return start
+        nums.insert(0,float('-inf'))
+        nums.append(float('-inf'))
+        l, r=0,len(nums)-1
+        while l <= r:
+            m = (l + r) // 2
+            if nums[m] > nums[m-1] and nums[m] > nums[m+1]:
+                return m - 1
+            elif nums[m] < nums[m-1]:
+                r = m - 1
+            elif nums[m] < nums[m+1]:
+                l = m + 1
+        return (nums[1] if nums[1] > nums[-2] else nums[-2])  
     
     # Search in Rotated Sorted Array
     def searchRotated(self, nums: List[int], target: int) -> int:

@@ -1,0 +1,64 @@
+import List
+
+class Intervals:
+    #  Summary Ranges
+    def summaryRanges(self, nums: List[int]) -> List[str]:
+        if nums == []:
+            return []
+        n = nums[0]
+        answer = [str(n)]
+        for i in nums[1:]:
+            if i == n + 1:
+                n = i
+            else:
+                if n != int(answer[-1]):
+                    answer[-1] = answer[-1] + "->" + str(n)
+                answer.append(str(i))
+                n = i
+        if n != int(answer[-1]):
+            answer[-1] = answer[-1] + "->" + str(n)
+        return answer
+    
+    # Merge Intervals
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        intervals.sort(key=lambda x: x[0])
+        merged = [intervals[0]]
+        for interval in intervals:
+            if merged[-1][1] < interval[0]:
+                merged.append(interval)
+            else:
+                merged[-1][1] = max(merged[-1][1], interval[1])
+        return merged
+    
+    # Insert Interval
+    def insert(self, intervals: List[List[int]], newInterval: List[int]) -> List[List[int]]:
+        answer = []
+        flag = 1
+        if intervals == []:
+            return [newInterval]
+        for i in intervals:
+            if i[0] > newInterval[1]:
+                if flag:
+                    answer.append(newInterval)
+                    flag = 0
+                answer.append(i)
+            elif newInterval[0] <= i[1] and newInterval[1] >= i[0]:
+                newInterval = [min(newInterval[0], i[0]), max(newInterval[1], i[1])]
+            else:
+                answer.append(i)
+        if flag:
+            answer.append(newInterval)
+        return answer
+    
+    # Minimum Number of Arrows to Burst Balloons
+    def findMinArrowShots(self, points: List[List[int]]) -> int:
+        points.sort(key=lambda x: x[0])
+        arrows = 1
+        end = points[0][1]
+        for balloon in points[1:]:
+            if balloon[0] > end: 
+                arrows += 1  
+                end = balloon[1] 
+            else:
+                end = min(end, balloon[1])  
+        return arrows

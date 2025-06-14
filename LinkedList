@@ -1,0 +1,20 @@
+import Optional
+
+class ListNode:
+    def __init__(self, x):
+        self.val = x
+        self.next = None
+
+class LinkedList:
+    # Linked List Cycle
+    def hasCycle(self, head: Optional[ListNode]) -> bool:
+        buffer = set()
+        if head == None:
+            return False
+        while head.next != None:
+            if head not in buffer:
+                buffer.add(head)
+            else:
+                return True
+            head = head.next
+        return False
